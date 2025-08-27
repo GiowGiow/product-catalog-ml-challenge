@@ -21,7 +21,7 @@ repos:
         name: checking for vulnerabilities (Bandit)
         description: Tool designed to find common security issues in Python code
         # pre-commit exclude pattern
-        exclude: '__pypackages__|__pycache__|baker_recipes|commands|migrations/.*|tests/.*|test.*\.py'
+        exclude: '__pypackages__|__pycache__|commands|migrations/.*|tests/.*|test.*\.py'
 
 -   repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.17.1

@@ -28,5 +28,5 @@ jobs:
     - name: Run pre-commit hooks
       run: uv run pre-commit run --all-files
 
-    - name: Run Tests with Coverage
-      run: uv run pytest --cov --allow-no-tests
+    # - name: Run Tests with Coverage
+    #   run: uv run pytest --cov

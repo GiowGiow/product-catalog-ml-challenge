@@ -11,3 +11,11 @@ wheels/
 
 # IDE settings
 .vscode
+.ruff_cache
+.mypy_cache
+.pytest_cache
+
+# Docs
+docs/_build
+docs/_static
+docs/_templates
