@@ -21,4 +21,4 @@ repos:
     hooks:
     -   id: mypy
         args: ["--strict"]
-        additional_dependencies: ["django-stubs", "djangorestframework-stubs"]
+        additional_dependencies: ["django-stubs", "djangorestframework", "djangorestframework-stubs", "django-environ", "django-modeltranslation"]
