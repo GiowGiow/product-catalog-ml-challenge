@@ -24,13 +24,17 @@ jobs:
     - name: Install uv
       run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
-    - name: Install Dependencies
-      # Assuming all dependencies are listed in pyproject.toml
-      run: uv pip install .
+    - name: Create virtual environment and install dependencies
+      run: |
+        uv venv
+        uv pip install .
 
     - name: Run pre-commit hooks
-      run: pre-commit run --all-files
+      run: |
+        source .venv/bin/activate
+        pre-commit run --all-files
 
     - name: Run Tests with Coverage
       run: |
+        source .venv/bin/activate
         pytest --cov=src --cov-fail-under=80
