@@ -47,3 +47,23 @@ ignore_missing_imports = true
 
 [tool.django-stubs]
 django_settings_module = "mercadolibre_api.settings"
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+    # Django project configuration
+    "src/mercadolibre_api/*",
+    "src/manage.py",
+    # Django app configuration
+    "src/catalog/apps.py",
+    "src/catalog/admin.py",
+    # Migrations are auto-generated
+    "src/catalog/migrations/*",
+    # Exclude tests from coverage report
+    "src/catalog/tests.py",
+]
+
+[tool.coverage.report]
+# TODO: Increase coverage threshold as tests are added.
+fail_under = 0
+show_missing = true
