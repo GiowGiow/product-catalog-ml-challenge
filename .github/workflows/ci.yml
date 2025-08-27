@@ -25,14 +25,12 @@ jobs:
       run: curl -LsSf https://astral.sh/uv/install.sh | sh
 
     - name: Install Dependencies
-      run: uv install
+      # Assuming all dependencies are listed in pyproject.toml
+      run: uv pip install .
 
-      # TODO: change this to run pre-commit + coverage
-    - name: Run Code Quality Checks (Ruff & Bandit)
-      run: |
-        ruff check src
-        bandit -r src
+    - name: Run pre-commit hooks
+      run: pre-commit run --all-files
 
-    - name: Run Tests with Pytest
+    - name: Run Tests with Coverage
       run: |
-        pytest
+        pytest --cov=src --cov-fail-under=80
