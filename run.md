@@ -3,7 +3,10 @@
 This document provides instructions on how to set up and run the product-info-backend service.
 
 ## Prerequisites
+If running via docker:
+- Docker
 
+If running locally:
 - Python 3.13
 - [uv](https://github.com/astral-sh/uv) (or pip)
 
@@ -42,8 +45,9 @@ uvicorn src.entrypoints.fastapi_app:app --reload
 ```
 
 
-The API will be available at `http://127.0.0.1:8000`. 
-You can access the auto-generated documentation at `http://127.0.0.1:8000/docs`.
+The API will be available at `http://127.0.0.1:8000`.
+
+You can access the auto-generated interactive documentation at `http://127.0.0.1:8000/docs`.
 
 ## Running Tests
 

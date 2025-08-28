@@ -1,110 +1,82 @@
-### Proposed Solution
+## 🚀 Proposed Solution
 
-Current Strategy:
+Here's a breakdown of the technical strategy for this project:
 
-- Python 3.13:
-        - As I currently use Python for most of my projects and it is a versatile language for backend development.
-        - Current LTS version.
+-   **🐍 Programming Language: Python 3.13**
+    -   Chosen for its versatility in backend development and being the current Long-Term Support (LTS) version.
 
-- Framework:
-        - FastAPI:
-            - great for building APIs quickly and efficiently.
-            - supports asynchronous programming out of the box.
-            - has automatic generation of OpenAPI documentation.
+-   **🌐 Framework: FastAPI**
+    -   Ideal for building APIs quickly and efficiently.
+    -   Supports asynchronous programming out of the box.
+    -   Provides automatic generation of OpenAPI documentation.
 
-- Data Persistence Layer:
-        - Repository abstraction layer for data access:
-            - In-memory caching for improved performance
-            - Custom JSON/CSV file-based storage
+-   **💾 Data Persistence**
+    -   **Repository Pattern:** An abstraction layer for data access.
+    -   **Caching:** In-memory caching for improved performance.
+    -   **Storage:** Custom JSON/CSV file-based storage.
 
-- Deployment:
-        - Docker for containerization
-        - Kubernetes for orchestration
+-   **☁️ Deployment**
+    -   **Containerization:** Docker.
+    -   **Orchestration:** Kubernetes.
 
-- CI/CD:
-        - Github CI/CD:
-        - Code Quality checks:
-            - use pre-commit hooks (to simplify the process of maintaining code quality)
-            - Runs for each MR/RP for the development and main branches
-        - Coverage checks:
-            - Minimum 80% coverage required to merge a PR
+-   **⚙️ CI/CD**
+    -   **Pipeline:** GitHub Actions.
+    -   **Code Quality:** Pre-commit hooks to lint, format, and scan for vulnerabilities before committing.
+    -   **Merge Checks:** Runs for each pull request against `development` and `main` branches.
+    -   **Test Coverage:** Minimum 80% coverage required to merge.
 
-- Git Workflow:
-      - Branches:
-        - main for production-ready code
-        - development for the latest development changes
-        - feature branches based on development for new features or bug fixes
-      - Merging:
-        - PRs/MRs to merge feature branches into development
-        - PRs/MRs to merge development into main
-        - All PRs/MRs require at least one approval and successful CI/CD checks
+-   **🌳 Git Workflow**
+    -   **Branches:**
+        -   `main`: Production-ready code.
+        -   `development`: Latest development changes.
+        -   `feature/*`: For new features or bug fixes.
+    -   **Merging:**
+        -   Pull Requests are required to merge code into `development` and `main`.
+        -   PRs must have at least one approval and pass all CI checks.
 
-- Code Quality:
-        - Pre-commit for pre-commit hooks to ensure code quality
-            - ruff for linting and formatting
-            - Bandit for vulnerability scanning
+-   **✨ Code Quality & Linting**
+    -   **Pre-commit:** For running automated checks before commits.
+    -   **Ruff:** For high-performance linting and formatting.
+    -   **Bandit:** For vulnerability scanning.
 
-- Testing:
-        - pytest for unit and integration tests
-        - TDD with BDD for behavior-driven development
+-   **🧪 Testing**
+    -   **Framework:** `pytest` for unit and integration tests.
+    -   **Methodology:** Test-Driven Development (TDD) combined with Behavior-Driven Development (BDD).
 
-- Linting:
-        - ruff for code quality and consistency
+-   **📖 Documentation & BDD**
+    -   **API Docs:** Served automatically via FastAPI's built-in OpenAPI support.
+    -   **BDD with `pytest-bdd`:**
+        -   Feature files act as a development roadmap.
+        -   Serves as living documentation for developers.
+        -   Works well with GenAI tools for faster development cycles.
 
-- Documentation:
-        - Served automatically with FastAPI's built-in OpenAPI support
-        - Additional documentation in the README.md file
+-   **📦 Dependency Management**
+    -   **UV:** For managing dependencies, virtual environments, and Python versions.
 
-- Documentation/Testing:
-        - BDD development with pytest-bdd
-            - Serves as roadmap for development
-            - Serves as documentation for other developers
-            - Works really well with GenAI tools
-                - General framework for the feature as guideline
-                - Faster diagrams with MermaidJS
+-   **🏗️ Modeling**
+    -   **Domain-Driven Design (DDD):** Following Cosmic Python guidelines for a clear separation of concerns, making the application easier to maintain and scale.
 
-- Diagrams:
-        - MermaidJS for diagrams based on the feature files
+-   **🤖 GenAI Tools**
+    -   **GitHub Copilot:** For code suggestions and autocompletion.
+    -   **Gemini:** For brainstorming, code suggestions, and design patterns.
 
-- Dependency Management:
-        - UV for managing dependencies, virtual environments, and python versions
+## 🤔 Why This Architecture?
 
-- Modeling:
-        - DDD for domain-driven design (mostly using Cosmic Python guidelines)
-            - clear separation of concerns
-            - easier to maintain and scale the application
-
-- GenAI Tools:
-        - Copilot:
-            - for code suggestions and autocompletion
-        - Gemini:
-            - for code suggestions, design suggestions and for brainstorming
-
-### Why This Architecture?
-The architecture is designed to be modular, scalable, and maintainable.
-
-The project follows the Onion Architecture to ensure loose coupling and high cohesion. The core domain logic is at the center, independent of any external frameworks or infrastructure. This separation of concerns makes the system more maintainable, testable, and scalable.
+The architecture is designed to be **modular, scalable, and maintainable**, following the principles of **Onion Architecture** to ensure loose coupling and high cohesion.
 
 ![Onion Model](docs/content/onion_model.png)
 
-Dependencies point inwards, from the outer layers (like entrypoints and infrastructure) to the inner layers (service layer and domain). This prevents the core business logic from being coupled to implementation details.
+The core domain logic sits at the center, independent of external frameworks or infrastructure. Dependencies point inwards, preventing the core business logic from being coupled to implementation details like databases or web frameworks.
 
 ![Coupling Diagram](docs/content/coupling.png)
 
-The idea is that when we start with a solid foundation, referencing the domain model, we get for free a domain that is clear from infrastructure concerns, making it easier to test and maintain.
+-   **Separation of Concerns:** The service layer (business logic) is distinctly separated from entrypoints (FastAPI) and infrastructure (data persistence).
+-   **Repository Pattern:** We use a repository pattern to abstract the data access layer. This allows for easily swapping storage mechanisms (e.g., from in-memory to a database) without impacting business logic.
+-   **Unit of Work Pattern:** Manages transactions to ensure data consistency across multiple operations, which is crucial for supporting parallel replicas behind a load balancer.
+-   **Behavior-Driven Design (BDD):** We use Gherkin syntax in `.feature` files to drive development. This human-readable format ensures the implementation aligns with requirements and helps new developers understand system behavior quickly.
+-   **Automation:** The use of pre-commit hooks and CI/CD pipelines ensures high code quality is maintained throughout the development lifecycle.
+-   **Functionality:** The service provides full CRUD operations for the Product model, secured with simple token-based authentication.
 
-We separate on service layer, which contains the business logic, from the entrypoints (FastAPI) and infrastructure (data persistence).
+## 💡 Why This Stack?
 
-We implemented a repository pattern to abstract the data access layer, allowing for easy swapping of data storage mechanisms (in-memory, file-based, database, etc.) without affecting the core business logic.
-
-We use a unit of work pattern to manage transactions and ensure data consistency across multiple operations.
-This would allow for multiple replicas of this same service to run in parallel, behind a load balancer, if needed.
-
-We use Behavior driven design intentionally because feature files use gherkin syntax, a human-readable format, to drive the development process, as it is intertwined with both tests and implementation.
-
-This ensures that the implementation aligns with the specified requirements, and allows other developers if there ever were to be, to hop onboard, understand the behavior of the system quickly and start coding.
-
-The use of pre-commit hooks and CI/CD pipelines ensures that code quality is maintained throughout the development process.
-
-### Why This Stack?".
-I intentionally chose a production-grade stack not because the problem's complexity demanded it, but to demonstrate your proficiency with the tools and practices used to build scalable, maintainable, and robust systems like those at Mercado Libre.
+I intentionally chose a production-grade stack not because the problem's complexity demanded it, but to demonstrate proficiency with the tools and practices used to build scalable, maintainable, and robust systems like those at Mercado Libre.
