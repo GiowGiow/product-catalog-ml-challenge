@@ -21,23 +21,23 @@ def add_product(
     category: str,
     stock: int,
     uow: unit_of_work.AbstractUnitOfWork,
-):
+) -> model.Product:
     with uow:
         if any(p.sku == sku for p in uow.products.list()):
             raise InvalidSku(f"Invalid sku {sku}")
-        uow.products.add(
-            model.Product(
-                sku,
-                name,
-                description,
-                price,
-                brand,
-                category,
-                stock,
-                created_at=date.today(),
-            )
+        product = model.Product(
+            sku,
+            name,
+            description,
+            price,
+            brand,
+            category,
+            stock,
+            created_at=date.today(),
         )
+        uow.products.add(product)
         uow.commit()
+        return product
 
 
 def get_product(sku: str, uow: unit_of_work.AbstractUnitOfWork) -> model.Product:
