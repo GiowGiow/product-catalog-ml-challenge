@@ -80,3 +80,7 @@ The core domain logic sits at the center, independent of external frameworks or 
 ## 💡 Why This Stack?
 
 I intentionally chose a production-grade stack not because the problem's complexity demanded it, but to demonstrate proficiency with the tools and practices used to build scalable, maintainable, and robust systems like those at Mercado Libre.
+
+
+### Repository
+[Github Repo](https://github.com/GiowGiow/product-catalog-ml-challenge) to explore the complete implementation and pipeline details.
