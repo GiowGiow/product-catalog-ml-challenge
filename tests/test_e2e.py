@@ -45,7 +45,10 @@ def test_add_product(csv_uow_fixture):
     assert data["sku"] == "PROD123"
     assert data["name"] == "Test Product"
 
-    # Verify the product was actually added
+    # Verify the product was actually added by creating a new uow
+    app.dependency_overrides[get_uow] = lambda: csv_uow.CsvUnitOfWork(
+        csv_uow_fixture._filepath
+    )
     response = client.get("/products/PROD123")
     assert response.status_code == 200
     data = response.json()

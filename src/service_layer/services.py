@@ -23,7 +23,7 @@ def add_product(
     uow: unit_of_work.AbstractUnitOfWork,
 ) -> model.Product:
     with uow:
-        if any(p.sku == sku for p in uow.products.list()):
+        if uow.products.get(sku):
             raise InvalidSku(f"Invalid sku {sku}")
         product = model.Product(
             sku,
