@@ -1,129 +1,207 @@
-import os
-
 import pytest
 from fastapi.testclient import TestClient
+from pytest_bdd import given, parsers, scenario, then, when
 
 from src.entrypoints.fastapi_app import app, get_uow
-from src.service_layer import csv_uow
+from src.service_layer.csv_uow import CsvUnitOfWork
 
-client = TestClient(app)
+# Constants
+BASE_URL = "/products"
 
 
 @pytest.fixture
-def csv_uow_fixture():
-    test_csv = "data/test_products.csv"
-    if os.path.exists(test_csv):
-        os.remove(test_csv)
-    uow = csv_uow.CsvUnitOfWork(test_csv)
-    yield uow
-    if os.path.exists(test_csv):
-        os.remove(test_csv)
+def test_csv_file(tmp_path):
+    """Create a temporary csv file for testing."""
+    return tmp_path / "test_products.csv"
 
 
-@pytest.fixture(autouse=True)
-def auto_clear_dependency_overrides():
-    yield
-    app.dependency_overrides = {}
+@pytest.fixture
+def client(test_csv_file):
+    """A TestClient that uses a temporary CSV file."""
+
+    def override_get_uow():
+        return CsvUnitOfWork(filepath=str(test_csv_file))
+
+    app.dependency_overrides[get_uow] = override_get_uow
+    yield TestClient(app)
+    del app.dependency_overrides[get_uow]
 
 
-def test_add_product(csv_uow_fixture):
-    app.dependency_overrides[get_uow] = lambda: csv_uow_fixture
-    response = client.post(
-        "/products/",
-        json={
-            "sku": "PROD123",
-            "name": "Test Product",
-            "description": "This is a test product.",
-            "price": 99.99,
-            "brand": "TestBrand",
-            "category": "TestCategory",
-            "stock": 100,
-        },
+@scenario(
+    "features/product_retrieval.feature",
+    "Retrieve an existing product's details successfully",
+)
+def test_retrieving_existing_product():
+    pass
+
+
+@scenario(
+    "features/product_retrieval.feature", "Attempt to retrieve a non-existent product"
+)
+def test_retrieving_non_existent_product():
+    pass
+
+
+@scenario(
+    "features/product_listing.feature", "List all products when multiple products exist"
+)
+def test_list_all_products():
+    pass
+
+
+@scenario(
+    "features/product_listing.feature", "List all products when the catalog is empty"
+)
+def test_list_all_products_empty():
+    pass
+
+
+@scenario("features/product_management.feature", "Successfully add a new product")
+def test_add_new_product():
+    pass
+
+
+@scenario(
+    "features/product_management.feature",
+    "Attempt to add a product with a duplicate SKU",
+)
+def test_add_duplicate_product():
+    pass
+
+
+@given("the system is running")
+def system_is_running():
+    """This step is a placeholder for readability in feature files."""
+    pass
+
+
+@given("the system has no products")
+def clear_products(test_csv_file):
+    """Ensure the temporary CSV file is empty."""
+    if test_csv_file.exists():
+        test_csv_file.unlink()
+
+
+@given(
+    parsers.parse("the system has the following products:"),
+    target_fixture="products_context",
+)
+def system_has_products(client, datatable):
+    products = []
+    headers = [h.lower() for h in datatable[0]]
+    for row_values in datatable[1:]:
+        row = dict(zip(headers, row_values))
+        product = {
+            "sku": row["sku"],
+            "name": row["name"],
+            "description": row["description"],
+            "price": float(row["price"]),
+            "brand": row["brand"],
+            "category": row["category"],
+            "stock": int(row["stock"]),
+        }
+        client.post(BASE_URL, json=product)
+        products.append(product)
+    return {"products": products}
+
+
+@given(parsers.parse('a product with sku "{sku}" exists'))
+def product_with_sku_exists(client, sku):
+    product_data = {
+        "sku": sku,
+        "name": "Existing Product",
+        "description": "A product that already exists.",
+        "price": 50.00,
+        "brand": "ExistingBrand",
+        "category": "ExistingCategory",
+        "stock": 10,
+    }
+    # Ensure it doesn't fail if it already exists from another step
+    client.post(BASE_URL, json=product_data)
+
+
+@when(
+    parsers.parse('I request the product details for sku "{sku}"'),
+    target_fixture="response",
+)
+def request_product_details(client, sku):
+    return client.get(f"{BASE_URL}/{sku}")
+
+
+@when("I request the list of all products", target_fixture="response")
+def request_list_of_all_products(client):
+    return client.get(BASE_URL)
+
+
+@when("I add a new product with the following details:", target_fixture="response")
+def add_new_product_step(client, datatable):
+    headers = [h.lower() for h in datatable[0]]
+    row_values = datatable[1]
+    row = dict(zip(headers, row_values))
+    product_data = {
+        "sku": row["sku"].strip('"'),
+        "name": row["name"].strip('"'),
+        "description": row["description"].strip('"'),
+        "price": float(row["price"]),
+        "brand": row["brand"].strip('"'),
+        "category": row["category"].strip('"'),
+        "stock": int(row["stock"]),
+    }
+    return client.post(BASE_URL, json=product_data)
+
+
+@when(
+    parsers.parse('I try to add a new product with sku "{sku}"'),
+    target_fixture="response",
+)
+def add_duplicate_product_step(client, sku):
+    product_data = {
+        "sku": sku,
+        "name": "Duplicate Product",
+        "description": "This is a duplicate product.",
+        "price": 25.00,
+        "brand": "DuplicateBrand",
+        "category": "DuplicateCategory",
+        "stock": 5,
+    }
+    return client.post(BASE_URL, json=product_data)
+
+
+@then(parsers.parse("the response status code should be {status_code:d}"))
+def response_status_code(response, status_code):
+    assert response.status_code == status_code
+
+
+@then(parsers.parse('the response should contain the details for the product "{sku}"'))
+def response_contains_product_details(response, sku, products_context):
+    expected_product = next(
+        (p for p in products_context["products"] if p["sku"] == sku), None
     )
-    assert response.status_code == 201
-    data = response.json()
-    assert data["sku"] == "PROD123"
-    assert data["name"] == "Test Product"
+    assert expected_product is not None, f"Product with SKU {sku} not found in context."
+    response_data = response.json()
+    assert response_data["sku"] == expected_product["sku"]
+    assert response_data["name"] == expected_product["name"]
+    assert response_data["price"] == expected_product["price"]
 
-    # Verify the product was actually added by creating a new uow
-    app.dependency_overrides[get_uow] = lambda: csv_uow.CsvUnitOfWork(
-        csv_uow_fixture._filepath
-    )
-    response = client.get("/products/PROD123")
+
+@then(parsers.parse('the response should contain an error message "{message}"'))
+def response_contains_error_message(response, message):
+    assert message in response.json()["detail"]
+
+
+@then(parsers.parse("the response should contain a list of {count:d} products"))
+def response_contains_list_of_products(response, count):
+    assert isinstance(response.json(), list)
+    assert len(response.json()) == count
+
+
+@then("the response should contain an empty list")
+def response_contains_empty_list(response):
+    assert response.json() == []
+
+
+@then(parsers.parse('the product "{sku}" should be available in the system'))
+def product_should_be_available(client, sku):
+    response = client.get(f"{BASE_URL}/{sku.strip('"')}")
     assert response.status_code == 200
-    data = response.json()
-    assert data["sku"] == "PROD123"
-
-
-def test_add_product_invalid_sku(csv_uow_fixture):
-    app.dependency_overrides[get_uow] = lambda: csv_uow_fixture
-    # Add a product first
-    client.post(
-        "/products/",
-        json={
-            "sku": "PROD123",
-            "name": "Test Product",
-            "description": "This is a test product.",
-            "price": 99.99,
-            "brand": "TestBrand",
-            "category": "TestCategory",
-            "stock": 100,
-        },
-    )
-    # Try to add it again
-    response = client.post(
-        "/products/",
-        json={
-            "sku": "PROD123",
-            "name": "Another Test Product",
-            "description": "This is another test product.",
-            "price": 199.99,
-            "brand": "AnotherTestBrand",
-            "category": "AnotherTestCategory",
-            "stock": 200,
-        },
-    )
-    assert response.status_code == 400
-    assert "Invalid sku PROD123" in response.json()["detail"]
-
-
-def test_get_product_not_found(csv_uow_fixture):
-    app.dependency_overrides[get_uow] = lambda: csv_uow_fixture
-    response = client.get("/products/NONEXISTENT")
-    assert response.status_code == 404
-    assert "Product with SKU NONEXISTENT not found" in response.json()["detail"]
-
-
-def test_list_products(csv_uow_fixture):
-    app.dependency_overrides[get_uow] = lambda: csv_uow_fixture
-    client.post(
-        "/products/",
-        json={
-            "sku": "PROD1",
-            "name": "Product 1",
-            "description": "Description 1",
-            "price": 10.0,
-            "brand": "Brand1",
-            "category": "Category1",
-            "stock": 10,
-        },
-    )
-    client.post(
-        "/products/",
-        json={
-            "sku": "PROD2",
-            "name": "Product 2",
-            "description": "Description 2",
-            "price": 20.0,
-            "brand": "Brand2",
-            "category": "Category2",
-            "stock": 20,
-        },
-    )
-
-    response = client.get("/products/")
-    assert response.status_code == 200
-    data = response.json()
-    assert len(data) == 2
-    assert data[0]["sku"] == "PROD1"
-    assert data[1]["sku"] == "PROD2"
+    assert response.json()["sku"] == sku.strip('"')
