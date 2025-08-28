@@ -5,8 +5,9 @@ description = "A backend service for managing product information."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "django>=5.2.5",
-    "djangorestframework>=3.16.1",
+    "fastapi[standard]>=0.116.1",
+    "pydantic>=2.11.7",
+    "uvicorn>=0.35.0",
 ]
 
 [dependency-groups]
@@ -19,3 +20,15 @@ dev = [
     "sphinx>=8.2.3",
     "sphinx-rtd-theme>=3.0.2",
 ]
+
+[tool.ruff]
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.bandit]
+exclude_dirs = ["tests"]
