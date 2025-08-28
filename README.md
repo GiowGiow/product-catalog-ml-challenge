@@ -75,7 +75,7 @@ The core domain logic sits at the center, independent of external frameworks or 
 -   **Unit of Work Pattern:** Manages transactions to ensure data consistency across multiple operations, which is crucial for supporting parallel replicas behind a load balancer.
 -   **Behavior-Driven Design (BDD):** We use Gherkin syntax in `.feature` files to drive development. This human-readable format ensures the implementation aligns with requirements and helps new developers understand system behavior quickly.
 -   **Automation:** The use of pre-commit hooks and CI/CD pipelines ensures high code quality is maintained throughout the development lifecycle.
--   **Functionality:** The service provides full CRUD operations for the Product model, secured with simple token-based authentication.
+-   **Functionality:** The service provides full CRUD operations for the Product model, secured with simple token-based authentication. As this is a demo, advanced security measures are not implemented but can be added as needed. FastAPI has compatibility with OAuth2 and JWT for more robust security. Authorization can also be implemented manually or with third-party libraries.
 
 ## 💡 Why This Stack?
 
