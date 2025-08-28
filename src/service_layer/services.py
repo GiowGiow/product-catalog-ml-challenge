@@ -51,3 +51,26 @@ def get_product(sku: str, uow: unit_of_work.AbstractUnitOfWork) -> model.Product
 def list_products(uow: unit_of_work.AbstractUnitOfWork) -> list[model.Product]:
     with uow:
         return uow.products.list()
+
+
+def edit_product(
+    sku: str, updates: dict, uow: unit_of_work.AbstractUnitOfWork
+) -> model.Product:
+    with uow:
+        product = uow.products.get(sku)
+        if not product:
+            raise ProductNotFound(f"Product with SKU {sku} not found")
+        for key, value in updates.items():
+            setattr(product, key, value)
+        uow.products.add(product)
+        uow.commit()
+        return product
+
+
+def remove_product(sku: str, uow: unit_of_work.AbstractUnitOfWork):
+    with uow:
+        product = uow.products.get(sku)
+        if not product:
+            raise ProductNotFound(f"Product with SKU {sku} not found")
+        uow.products.remove(product)
+        uow.commit()

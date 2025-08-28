@@ -1,4 +1,5 @@
 sku,name,description,price,brand,category,stock,created_at,updated_at
+GIOW123,Test Product GIOW,This is a test product GIOW.,909.99,GiowBrand,GiowCategory,100,2025-08-28,
 PROD1,Product 1,Description 1,10.0,Brand1,Category1,10,2025-08-28,
 PROD123,Test Product,This is a test product.,99.99,TestBrand,TestCategory,100,2025-08-28,
 PROD2,Product 2,Description 2,20.0,Brand2,Category2,20,2025-08-28,

@@ -33,7 +33,7 @@ def test_repository_can_retrieve_a_product():
         100,
         date.today(),
     )
-    repo = repository.InMemoryRepository({product})
+    repo = repository.InMemoryRepository([product])
     assert repo.get("SKU123") == product
 
 
@@ -58,7 +58,7 @@ def test_repository_can_list_products():
         200,
         date.today(),
     )
-    repo = repository.InMemoryRepository({product1, product2})
+    repo = repository.InMemoryRepository([product1, product2])
     assert repo.list() == sorted([product1, product2], key=lambda p: p.sku)
 
 

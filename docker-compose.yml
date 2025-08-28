@@ -1,0 +1,16 @@
+services:
+  dev:
+    user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+    build:
+      context: .
+      target: development
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+  prod:
+    build:
+      context: .
+      target: production
+    ports:
+      - "8000:8000"

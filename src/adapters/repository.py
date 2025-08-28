@@ -19,6 +19,10 @@ class AbstractRepository(abc.ABC):
     def list(self) -> List[model.Product]:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def remove(self, product: model.Product):
+        raise NotImplementedError
+
 
 class InMemoryRepository(AbstractRepository):
     def __init__(self, products):
@@ -32,6 +36,10 @@ class InMemoryRepository(AbstractRepository):
 
     def list(self) -> List[model.Product]:
         return sorted(list(self._products.values()), key=lambda p: p.sku)
+
+    def remove(self, product: model.Product):
+        if product.sku in self._products:
+            del self._products[product.sku]
 
 
 class CsvRepository(AbstractRepository):
@@ -60,6 +68,7 @@ class CsvRepository(AbstractRepository):
                     )
                     products[product.sku] = product
         except (FileNotFoundError, StopIteration):
+            # Do not create the file here, let the UoW handle it.
             pass
         return products
 
@@ -71,3 +80,7 @@ class CsvRepository(AbstractRepository):
 
     def list(self) -> List[model.Product]:
         return sorted(list(self._products.values()), key=lambda p: p.sku)
+
+    def remove(self, product: model.Product):
+        if product.sku in self._products:
+            del self._products[product.sku]

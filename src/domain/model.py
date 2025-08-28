@@ -3,7 +3,7 @@ from datetime import date
 from typing import Optional
 
 
-@dataclass(frozen=True)
+@dataclass
 class Product:
     sku: str
     name: str

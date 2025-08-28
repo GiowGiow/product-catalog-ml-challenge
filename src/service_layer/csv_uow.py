@@ -1,4 +1,6 @@
 import csv
+import os
+import time
 
 from src.adapters import repository
 from src.service_layer import unit_of_work
@@ -8,6 +10,35 @@ class CsvUnitOfWork(unit_of_work.AbstractUnitOfWork):
     def __init__(self, filepath: str = "data/products.csv"):
         self.products = repository.CsvRepository(filepath)
         self._filepath = filepath
+        self._lock_filepath = f"{filepath}.lock"
+
+    def _acquire_lock(self):
+        start_time = time.time()
+        while True:
+            try:
+                # Use atomic file creation to acquire the lock
+                self._lock_fd = os.open(
+                    self._lock_filepath, os.O_CREAT | os.O_EXCL | os.O_WRONLY
+                )
+                return
+            except FileExistsError:
+                if time.time() - start_time >= 5:  # 5-second timeout
+                    raise TimeoutError(f"Could not acquire lock for {self._filepath}")
+                time.sleep(0.1)
+
+    def _release_lock(self):
+        if hasattr(self, "_lock_fd"):
+            os.close(self._lock_fd)
+            os.remove(self._lock_filepath)
+
+    def __enter__(self):
+        self._acquire_lock()
+        self.products = repository.CsvRepository(self._filepath)
+        return super().__enter__()
+
+    def __exit__(self, *args):
+        super().__exit__(*args)
+        self._release_lock()
 
     def commit(self):
         with open(self._filepath, "w", newline="") as f:
