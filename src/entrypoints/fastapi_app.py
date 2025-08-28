@@ -8,7 +8,7 @@ from src.service_layer import csv_uow, services, unit_of_work
 
 app = FastAPI()
 
-API_KEY = "your-secret-api-key"  # In a real app, use environment variables
+API_KEY = "your-secret-api-key"
 API_KEY_NAME = "X-API-KEY"
 api_key_header = APIKeyHeader(name=API_KEY_NAME, auto_error=True)
 
