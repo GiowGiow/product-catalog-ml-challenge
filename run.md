@@ -9,42 +9,51 @@ This document provides instructions on how to set up and run the product-info-ba
 
 ## Setup
 
-1. **Clone the repository:**
+1. **Running the Application via Docker**
+    Using Docker Compose:
+
+    It will run the service with all dependencies.
+    Dev mode:
     ```sh
-    git clone <repository-url>
-    cd product-info-backend
+    docker compose up --build dev
     ```
 
-2. **Create a virtual environment and install dependencies:**
-    Using uv:
+    Prod mode:
     ```sh
-    uv venv
-    uv pip install -e .[dev]
-    source .venv/bin/activate
-    ```
-    Using pip:
-    ```sh
-    python3.13 -m venv .venv
-    source .venv/bin/activate
-    pip install -e .[dev]
+    docker compose up --build prod
     ```
 
-## Running the Application
-
+## Running the Application Locally
 To start the FastAPI server, run the following command:
 
 
+1. **Create a virtual environment and install dependencies:**
+    Using uv:
+    ```sh
+    uv venv
+    uv python install 3.13 # if you don't have python 3.13
+    uv pip install -e ".[dev]"
+    source .venv/bin/activate
+    ```
+
+2. **Run the FastAPI application:**
 ```sh
 uvicorn src.entrypoints.fastapi_app:app --reload
 ```
 
 
-The API will be available at `http://127.0.0.1:8000`. You can access the auto-generated documentation at `http://127.0.0.1:8000/docs`.
+The API will be available at `http://127.0.0.1:8000`. 
+You can access the auto-generated documentation at `http://127.0.0.1:8000/docs`.
 
 ## Running Tests
 
 To run the test suite, use pytest:
 
 ```sh
-pytest
+uv run pytest
 ```
+
+## Running Docs
+
+API docs:
+Served automatically by FastAPI at `http://127.0.0.1:8000/docs`.

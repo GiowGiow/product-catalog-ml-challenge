@@ -1,3 +1,4 @@
+import os
 from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, Security
@@ -6,7 +7,12 @@ from fastapi.security import APIKeyHeader
 from src.entrypoints import schemas
 from src.service_layer import csv_uow, services, unit_of_work
 
-app = FastAPI()
+APP_MODE = os.getenv("APP_MODE", "development")
+
+docs_url = None if APP_MODE == "production" else "/docs"  # disables docs
+redoc_url = None if APP_MODE == "production" else "/redoc"  # disables redoc
+openapi_url = None if APP_MODE == "production" else "/openapi.json"  # disables openapi
+app = FastAPI(docs_url=docs_url, redoc_url=redoc_url, openapi_url=openapi_url)
 
 API_KEY = "your-secret-api-key"
 API_KEY_NAME = "X-API-KEY"

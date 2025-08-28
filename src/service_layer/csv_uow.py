@@ -7,6 +7,29 @@ from src.service_layer import unit_of_work
 
 
 class CsvUnitOfWork(unit_of_work.AbstractUnitOfWork):
+    """
+    CSV-based implementation of the Unit of Work pattern.
+
+    This class manages transactions and data persistence for product operations
+    using a CSV file as the data store. It implements file locking to ensure
+    data consistency in concurrent environments.
+
+    The Unit of Work pattern maintains a list of objects affected by a business
+    transaction and coordinates writing out changes and resolving concurrency problems.
+
+    Args:
+        filepath (str): Path to the CSV file. Defaults to "data/products.csv".
+
+    Raises:
+        TimeoutError: If lock cannot be acquired within 5 seconds.
+
+    Example:
+        with CsvUnitOfWork() as uow:
+            product = uow.products.get("SKU123")
+            product.price = 99.99
+            uow.commit()  # Changes are persisted to CSV
+    """
+
     def __init__(self, filepath: str = "data/products.csv"):
         self.products = repository.CsvRepository(filepath)
         self._filepath = filepath

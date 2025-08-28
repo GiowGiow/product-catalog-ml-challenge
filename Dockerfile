@@ -6,7 +6,7 @@ FROM ghcr.io/astral-sh/uv:python3.13-bookworm-slim AS builder
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 # Set cache directory for uv
-ENV UV_CACHE_DIR=/root/.cache/uv
+ENV UV_CACHE_DIR=/tmp/uv-cache
 
 # Set work directory
 WORKDIR /app
@@ -36,6 +36,7 @@ CMD ["uv", "run", "uvicorn", "src.entrypoints.fastapi_app:app", "--host", "0.0.0
 # Start from a clean python image.
 FROM python:3.13-slim as production
 
+ENV APP_MODE=production
 # Set work directory
 WORKDIR /app
 

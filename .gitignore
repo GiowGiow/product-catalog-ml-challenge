@@ -11,3 +11,6 @@ wheels/
 *.pdf
 .vscode/*
 .*_cache
+
+_build
+_static
